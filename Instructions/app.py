@@ -24,7 +24,10 @@ def welcome():
         f"Here are all of the available routes: <br>"
         f"/api/v1.0/precipitation<br>"
         f"/api/v1.0/stations<br>"
-        f"/api/v1.0/tobs"
+        f"/api/v1.0/tobs<br>"
+        f"/api/v1.0/<start><br>"
+        f"/api/v1.0/<end>"
+        
         
     )
 
@@ -36,34 +39,16 @@ def precip():
 
     session.close()
 
-    #precip_list = []
+    
     precip_dict = {}
     for date, prcp in precip:
         precip_dict[date] = prcp
-        # precip_dict[prcp] = precip
-        # precip_list.append(precip_dict)
+        
 
     return jsonify(precip_dict)
 
 
-# @app.route("/api/v1.0/precipitation")
-# def precip():
-#     session = Session(engine)
 
-#     precip = session.query(Measurement.date, Measurement.prcp).filter(Measurement.date >= '2016-08-23').all()
-
-#     session.close()
-
-#     precip_list = list(np.ravel(precip))
-
-
-#     for date, prcp in precip:
-#         precip_dict = {}
-#         precip_dict["date"] = date
-#         precip_dict["prcp"] = precip
-#         precip_list.append(precip_dict)
-
-#     return jsonify(precip_list)
 
 
 @app.route("/api/v1.0/stations")
@@ -95,7 +80,37 @@ def active_station():
 
 
 @app.route("/api/v1.0/<start>")
-def start_date():
+def start_date(start):
+    session = Session(engine)
+
+    start_temp_stats = session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start).all()
+    
+
+    session.close()
+
+    start_temp_stat_list = list(np.ravel(start_temp_stats))
+
+    
+        
+    return jsonify(start_temp_stat_list)
+
+
+
+@app.route("/api/v1.0/<end>")
+def start_end_date(start,end):
+    session = Session(engine)
+
+    end_temp_stats = session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date.between(start, end)).all()
+    
+
+    session.close()
+
+    end_temp_stat_list = list(np.ravel(end_temp_stats))
+
+    
+        
+    return jsonify(end_temp_stat_list)
+
 
 
 
